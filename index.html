@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Ember Starter Kit</title>
+  <link rel="stylesheet" href="css/normalize.css">
+  <link rel="stylesheet" href="css/style.css">
+  <link href="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.no-icons.min.css" rel="stylesheet">
+  <style>
+        /* minimum styling possible */
+        * { -webkit-box-sizing:border-box; box-sizing:border-box; }
+        body { width:960px; margin:0 auto; }       
+        .users-listing { float:left; width:200px; height:330px; padding:20px; }
+        .users-listing a.active { font-weight:bold; }
+        .user-profile { border:1px solid #ddd; border-radius:3px; float:left; overflow:hidden; width:460px; height:330px; padding:20px; position:relative; }
+        .user-profile img { float:left; margin:0 20px 20px 0; }
+        .user-edit { border:1px solid #ddd; border-left:none; float:left; height:330px; padding:20px; background:#ebebeb; }
+        .create-btn { display:inline-block; border:1px solid #ccc; padding:2px 10px; margin:10px 0; background:#eee; }
+        label { display:block; margin-bottom:2px; margin-top:3px; }
+        input, textarea { border:1px solid #ccc; border-radius:3px; box-shadow:none; min-width:220px; padding:5px; }
+        .confirm-box { display:inline-block; border:1px solid #ddd; background:#f1f1f1; border-radius:3px; padding:12px; position:absolute; right:12px; }
+        h5 { margin-top:0; }
+    </style>
+</head>
+<body>
+
+  <script type="text/x-handlebars">
+    <div class="navbar">
+      <div class="navbar-inner">
+        <a class="brand" href="#">Web Expenses</a>
+        <ul class="nav">
+          <li>{{#link-to 'create'}}Create Group{{/link-to}}</li>
+          <li>{{#link-to 'expenses'}}Enter Expenses{{/link-to}}</li>
+		  <li>{{#link-to 'summary'}}Compute Payments{{/link-to}}</li>
+        </ul>
+      </div>
+    </div>
+
+    {{outlet}}
+  </script>
+
+  <script type="text/x-handlebars" id="create">
+    <div class="container-fluid">
+      <div class="row-fluid">
+        <div class="span3">
+		  <ul>
+		    <li>{{#link-to 'viewperson'}}View Persons{{/link-to}}</li>
+			<li>{{#link-to 'users'}}Add Person[+]{{/link-to}}</li>
+			<li>{{#link-to 'expenses'}}Enter Expenses >{{/link-to}}</li>			
+		  </ul>		          
+        </div>
+        <div class="span9">
+          {{outlet}}
+        </div>
+      </div>
+    </div>
+  </script>
+  
+  <script type="text/x-handlebars" id="viewperson">
+     <table class='table'>
+	    	     <thead>
+	                <tr><th>Person Name</th><th>Display Name</th><th>Description</th></tr>
+	             </thead>
+		         <tbody>
+		            {{#each model}}		  
+		               <tr>
+		      		      <td>{{#link-to 'eachuser' this}}{{name}}{{/link-to}}</td>
+			  			  <td>{{dname}}</td>
+			  			  <td>{{desc}}</td>
+		  			   </tr>
+		            {{/each}}
+		         </tbody>
+	  </table>	 
+	  {{outlet}}        
+  </script>
+  
+  <script type="text/x-handlebars" id="viewperson/index">
+    <p class="text-warning">Click on Name to edit</p>
+  </script>
+  
+  <script type="text/x-handlebars" id="eachuser">
+    {{#if isEditing}}
+    	  {{partial 'eachuser/edit'}}
+    	  <button {{action 'doneEditing'}}>Done</button>
+    {{else}}
+	      <button {{action 'edit'}}>Edit</button>	    	  
+    {{/if}}	
+	<h1>{{name}}</h1><h3>{{dname}}</h3><h3>{{desc}}</h3>
+    
+  </script>
+
+  <script type="text/x-handlebars" id="eachuser/_edit">
+    <p>{{input type="text" value=name}}</p>
+    <p>{{input type="text" value=dname}}</p>
+    <p>{{textarea value=desc}}</p>
+  </script>
+  
+  <script type="text/x-handlebars" id="users">
+     {{#link-to "users.create" class="create-btn"}} Add user[+] {{/link-to}}
+	 
+	    <div>Users: {{usersCount}}</div>
+        <ul class="users-listing">
+            {{#each user in controller}}
+            <li>
+               {{#link-to "user" user}}
+                    {{name}}
+               {{/link-to}}
+            </li>
+            {{else}}
+            <li>no users… :(</li>
+            {{/each}}
+        </ul>
+        
+        {{outlet}}      
+  </script>
+  
+  <script type="text/x-handlebars" id="user">
+        <div class="user-profile">
+            {{#if deleteMode}}
+            <div class="confirm-box">
+                <h5>Really?</h5>
+                <button {{action "confirmDelete"}}> yes </button>
+                <button {{action "cancelDelete"}}> no </button>
+            </div>
+            {{/if}}
+
+            <button {{action "edit"}}>Edit</button>
+            <button {{action "delete"}}>Delete</button>
+
+            
+            <h2>{{name}}</h2>
+            <span>{{dname}}</span>
+            <p>{{desc}}</p>
+            <span>Created {{formatDate creationDate}}</span>
+        </div>
+        
+        {{outlet}}
+    </script>
+    
+    <!-- single user edit template - also used by the create route -->
+    <script type="text/x-handlebars" id="user/edit">
+        <div class="user-edit">            
+            <div>
+                <label>User name</label>
+                {{input value=name}}
+            </div>
+            <div>
+                <label>Display name</label>
+                {{input value=dname}}
+            </div>
+            <div>
+                <label>Description</label>
+                {{textarea value=desc}}
+            </div>
+            <div>
+                <br/>
+                <button {{action "save"}}> ok </button>
+            </div>
+        </div>
+    </script>
+
+  <script type="text/x-handlebars" id="expenses">
+    <div class="container-fluid">
+      <div class="row-fluid">
+        <div class="span3">
+		  <ul>
+		    <li>{{#link-to 'viewexpense'}}View Expenses{{/link-to}}</li>			
+			<li>{{#link-to 'summary'}}Compute Payments >{{/link-to}}</li>			
+		  </ul>		          
+        </div>
+        <div class="span9">
+          {{outlet}}
+        </div>
+      </div>
+    </div>
+  </script>
+  
+  <script type="text/x-handlebars" id="viewexpense">
+     <table class='table'>
+	    	     <thead>
+	                <tr><th>#</th><th>Date</th><th>Description</th><th>Who paid?</th><th>Amount</th><th>For Whom</th></tr>
+	             </thead>
+		         <tbody>
+		            {{#each model}}		  
+		               <tr>
+		      		      <td>{{#link-to 'expense' this}}{{id}}{{/link-to}}</td>
+			  			  <td>{{date}}</td>
+			  			  <td>{{desc}}</td>
+						  <td>{{whopaid}}</td>
+			  			  <td>{{amount}}</td>
+						  <td>{{forwhom}}</td>
+		  			   </tr>
+		            {{/each}}
+		         </tbody>
+	  </table>	 
+	  {{outlet}}        
+  </script>
+  
+  <script type="text/x-handlebars" id="viewexpense/index">
+    <p class="text-warning">Click on #(id) to edit</p>
+  </script>
+  
+  <script type="text/x-handlebars" id="expense">
+    {{#if isEditing}}
+    	  {{partial 'expense/edit'}}
+    	  <button {{action 'doneEditing'}}>Done</button>
+    {{else}}
+	      <button {{action 'edit'}}>Edit</button>	    	  
+    {{/if}}	
+	<h5>{{date}}</h5><h5>{{desc}}</h5><h5>{{whopaid}}</h5><h5>{{amount}}</h5><h5>{{forwhom}}</h5>    
+    
+  </script>
+  
+  <script type="text/x-handlebars" id="expense/_edit">
+    <p>{{input type="text" value=date}}</p>
+    <p>{{input type="text" value=desc}}</p>
+	<p>{{input type="text" value=whopaid}}</p>
+    <p>{{input type="text" value=amount}}</p>
+	<p>{{input type="text" value=forwhom}}</p>	
+  </script>
+  
+  <script type="text/x-handlebars" id="summary">
+    <div class='about'>
+      Summary  - TO DO
+    </div>
+  </script>
+  
+  <script src="js/app.js"></script>
+  <script src="js/createUsersInLocalStorage.js"></script>
+  <script src="js/localstorage_adapter.js"></script>
+  
+  <script src="js/libs/jquery-1.9.1.js"></script>
+  <script src="js/libs/handlebars-1.0.0.js"></script>
+  <script src="js/libs/ember-1.0.0-rc.8.js"></script>
+  <script src="http://cdnjs.cloudflare.com/ajax/libs/showdown/0.3.1/showdown.min.js"></script>
+  <script src="http://cdnjs.cloudflare.com/ajax/libs/moment.js/2.1.0/moment.min.js"></script>
+  <script src="//builds.emberjs.com/tags/v1.0.0-beta.3/ember-data.js"></script>  
+  
+
+</body>
+</html>
