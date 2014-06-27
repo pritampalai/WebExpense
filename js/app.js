@@ -2,10 +2,7 @@ App = Ember.Application.create({
    LOG_TRANSITIONS: true
 });
 
-App.ApplicationSerializer = DS.LSSerializer.extend();
-
-App.ApplicationAdapter = DS.LSAdapter;
-
+App.Store = DS.LSAdapter;
 
 App.User = DS.Model.extend({    
     name         : DS.attr('string'),
@@ -62,29 +59,29 @@ App.Router.map(function() {
   });
 });
 
-App.UsersRoute = Em.Route.extend({
+App.UsersRoute = Ember.Route.extend({
    model: function(){    
-      return this.store.find('user');
-   }
+      return this.store.find('user');	  
+   }   
 });
 
-App.UsersController = Em.ArrayController.extend({
+App.UsersController = Ember.ArrayController.extend({
    sortProperties: ['name'],
    sortAscending: true, // false = descending
            
    usersCount: function(){
       return this.get('model.length');
-   }.property('@each')
+   }.property('@each')   
 });
 
-App.UserRoute = Em.Route.extend({
+App.UserRoute = Ember.Route.extend({
    model: function(params){
       return this.store.find('user', params.user_id);
    }
 });
         
 // single user controller
-App.UserController = Em.ObjectController.extend({
+App.UserController = Ember.ObjectController.extend({
    deleteMode: false,
            
    actions: {
@@ -112,14 +109,14 @@ App.UserController = Em.ObjectController.extend({
 });
 
 // singe user edit form route
-App.UserEditRoute = Em.Route.extend({
+App.UserEditRoute = Ember.Route.extend({
    model: function(){ 
       return this.modelFor('user');
    }
 });
         
 // single user edit form controller
-App.UserEditController = Em.ObjectController.extend({
+App.UserEditController = Ember.ObjectController.extend({
    actions: {
        save: function(){
             var user = this.get('model');
@@ -130,7 +127,7 @@ App.UserEditController = Em.ObjectController.extend({
 });
 
 // user creation form route
-App.UsersCreateRoute = Em.Route.extend({
+App.UsersCreateRoute = Ember.Route.extend({
    model: function(){
       // the model for this route is a new empty Ember.Object
       return Em.Object.create({});
@@ -143,7 +140,7 @@ App.UsersCreateRoute = Em.Route.extend({
    }
 });
         
-App.UsersCreateController = Em.ObjectController.extend({
+App.UsersCreateController = Ember.ObjectController.extend({
     actions: {
         save: function () {
             this.get('model').set('creationDate', new Date());
