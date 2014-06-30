@@ -2,14 +2,7 @@ App = Ember.Application.create({
    LOG_TRANSITIONS: true
 });
 
-App.Store = DS.LSAdapter;
-
-App.User = DS.Model.extend({    
-    name         : DS.attr('string'),
-    dname        : DS.attr('string'),
-    desc         : DS.attr('string'),
-	creationDate : DS.attr('date')           
-});
+App.ApplicationAdapter = DS.LSAdapter;
 
 var persons = [{
   id: '1',
@@ -51,27 +44,35 @@ App.Router.map(function() {
       this.resource('eachuser', { path: ':eachuser_id' });
 	});	
 	this.resource('users', function() {
-	  this.resource('user', {path:'/:user_id'}, function() {
+	  this.resource('user', {path: ':user_id'}, function() {
 	    this.route('edit');
 	  });
-	  this.route('create');
+	  this.route('createuser');
 	});  
   });
 });
 
+App.User = DS.Model.extend( {    
+    name         : DS.attr('string'),
+    dname        : DS.attr('string'),
+    desc         : DS.attr('string'),
+	creationDate : DS.attr('date')           
+});
+
 App.UsersRoute = Ember.Route.extend({
    model: function(){    
-      return this.store.find('user');	  
+      return this.store.findAll('user');	  
    }   
 });
 
 App.UsersController = Ember.ArrayController.extend({
    sortProperties: ['name'],
-   sortAscending: true, // false = descending
-           
+   sortAscending: true,
+   
    usersCount: function(){
       return this.get('model.length');
-   }.property('@each')   
+   }.property('@each')           
+    
 });
 
 App.UserRoute = Ember.Route.extend({
@@ -79,27 +80,21 @@ App.UserRoute = Ember.Route.extend({
       return this.store.find('user', params.user_id);
    }
 });
-        
-// single user controller
+
 App.UserController = Ember.ObjectController.extend({
    deleteMode: false,
            
    actions: {
       delete: function(){
-         // the delete method only toggles deleteMode value
          this.toggleProperty('deleteMode');
       },
-      cancelDelete: function(){
-         // set deleteMode back to false
+      cancelDelete: function(){         
          this.set('deleteMode', false);
       },
-      confirmDelete: function(){
-         // this will tell Ember-Data to delete the current user
+      confirmDelete: function(){         
          this.get('model').deleteRecord();
-         this.get('model').save();
-         // and then go to the users route
-         this.transitionToRoute('users');
-         // set deleteMode back to false
+         this.get('model').save();        
+         this.transitionToRoute('users');        
          this.set('deleteMode', false);
       },
       edit: function(){
@@ -108,14 +103,12 @@ App.UserController = Ember.ObjectController.extend({
    }
 });
 
-// singe user edit form route
 App.UserEditRoute = Ember.Route.extend({
    model: function(){ 
       return this.modelFor('user');
    }
-});
-        
-// single user edit form controller
+});    
+
 App.UserEditController = Ember.ObjectController.extend({
    actions: {
        save: function(){
@@ -126,21 +119,19 @@ App.UserEditController = Ember.ObjectController.extend({
    }
 });
 
-// user creation form route
-App.UsersCreateRoute = Ember.Route.extend({
-   model: function(){
-      // the model for this route is a new empty Ember.Object
-      return Em.Object.create({});
+App.UsersCreateuserRoute = Ember.Route.extend({
+   model: function(){      
+      return Ember.Object.create({});
    },
 
    renderTemplate: function(){
       this.render('user.edit', {
-          controller: 'usersCreate'
+          controller: 'usersCreateuser'
       });
    }
 });
         
-App.UsersCreateController = Ember.ObjectController.extend({
+App.UsersCreateuserController = Ember.ObjectController.extend({
     actions: {
         save: function () {
             this.get('model').set('creationDate', new Date());
