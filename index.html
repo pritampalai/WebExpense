@@ -96,23 +96,23 @@
   </script>
   
   <script type="text/x-handlebars" id="users">
-     {{#link-to "users.create" class="create-btn"}} Add user[+] {{/link-to}}
+     {{#link-to "users.createuser" class="create-btn"}} Add user[+] {{/link-to}}
 	 
-	    <div>Users: {{usersCount}}</div>
+        <div>Users:{{usersCount}}</div>
         <ul class="users-listing">
             {{#each user in controller}}
             <li>
                {{#link-to "user" user}}
-                    {{name}}
+                    {{user.name}}
                {{/link-to}}
             </li>
             {{else}}
-            <li>no users… :(</li>
+            NO users !!!
             {{/each}}
         </ul>
-        
-        {{outlet}}      
-  </script>
+		       
+        {{outlet}}		     
+  </script> 
   
   <script type="text/x-handlebars" id="user">
         <div class="user-profile">
@@ -123,18 +123,15 @@
                 <button {{action "cancelDelete"}}> no </button>
             </div>
             {{/if}}
-
             <button {{action "edit"}}>Edit</button>
             <button {{action "delete"}}>Delete</button>
-
-            
-            <h2>{{name}}</h2>
+			            
+            <h4>{{name}}</h4>
             <span>{{dname}}</span>
             <p>{{desc}}</p>
-            <span>Created {{formatDate creationDate}}</span>
+            <span>Created {{format-date user.creationDate}}</span>
         </div>
-        
-        {{outlet}}
+        {{outlet}}        
     </script>
     
     <!-- single user edit template - also used by the create route -->
@@ -225,15 +222,17 @@
     </div>
   </script>
   
-  <script src="js/libs/jquery-1.9.1.js"></script>
-  <script src="js/libs/handlebars-1.0.0.js"></script>   
-  <script src="js/libs/ember-1.0.0-rc.8.js"></script>  
-  <script src="js/libs/ember-data-latest.js"></script>
+  <script src="js/libs/jquery-1.10.2.js"></script>
+  <script src="js/libs/handlebars-1.1.2.js"></script>
+  <script src="http://builds.emberjs.com/tags/v1.5.1/ember.js"></script>    
+  <script src="js/libs/ember-states.js"></script>  
+  <script src="http://cdnjs.cloudflare.com/ajax/libs/ember-data.js/1.0.0-beta.8/ember-data.min.js"></script>
   <script src="http://cdnjs.cloudflare.com/ajax/libs/showdown/0.3.1/showdown.min.js"></script>  
   <script src="http://cdnjs.cloudflare.com/ajax/libs/moment.js/2.1.0/moment.min.js"></script>
-  <script src="js/createUsersInLocalStorage.js"></script>     
   <script src="js/localstorage_adapter.js"></script>
+  <script src="js/createUsersInLocalStorage.js"></script>     
   <script src="js/app.js"></script>
+     
 
 </body>
 </html>
