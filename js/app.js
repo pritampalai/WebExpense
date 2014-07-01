@@ -2,19 +2,9 @@ App = Ember.Application.create({
    LOG_TRANSITIONS: true
 });
 
-App.ApplicationAdapter = DS.LSAdapter;
-
-var persons = [{
-  id: '1',
-  name:"Pritam",
-  dname:"Raven",
-  desc:"SE"
-}, {
-  id: '2',
-  name:"Punam",
-  dname:"Toyi",
-  desc:"AC"  
-}];
+App.ApplicationAdapter = DS.LSAdapter.extend({
+  namespace: 'sample'
+});
 
 var expenditure = [{
   id: '1',
@@ -52,7 +42,7 @@ App.Router.map(function() {
   });
 });
 
-App.User = DS.Model.extend( {    
+App.Person = DS.Model.extend( { 
     name         : DS.attr('string'),
     dname        : DS.attr('string'),
     desc         : DS.attr('string'),
@@ -60,15 +50,16 @@ App.User = DS.Model.extend( {
 });
 
 App.UsersRoute = Ember.Route.extend({
-   model: function(){    
-      return this.store.findAll('user');	  
+   model: function(){  
+      var users = this.get('store').findAll('person');	  
+	  return users;      
    }   
 });
 
 App.UsersController = Ember.ArrayController.extend({
-   sortProperties: ['name'],
+   sortProperties: ['creationDate'],
    sortAscending: true,
-   
+      
    usersCount: function(){
       return this.get('model.length');
    }.property('@each')           
@@ -77,7 +68,12 @@ App.UsersController = Ember.ArrayController.extend({
 
 App.UserRoute = Ember.Route.extend({
    model: function(params){
-      return this.store.find('user', params.user_id);
+      this.get('store').find('model', lkqso).then(function(rec){
+          rec.deleteRecord();
+      });
+        var store = this.get('store');
+		return store.find('person',params.person_id); 
+		     
    }
 });
 
@@ -120,8 +116,9 @@ App.UserEditController = Ember.ObjectController.extend({
 });
 
 App.UsersCreateuserRoute = Ember.Route.extend({
-   model: function(){      
-      return Ember.Object.create({});
+   model: function(){  
+      var store = this.get('store');
+		return store.createRecord('person',this.get('model'));      
    },
 
    renderTemplate: function(){
@@ -133,14 +130,22 @@ App.UsersCreateuserRoute = Ember.Route.extend({
         
 App.UsersCreateuserController = Ember.ObjectController.extend({
     actions: {
-        save: function () {
+        save: function () {    
             this.get('model').set('creationDate', new Date());
-            var newUser = this.store.createRecord('users', this.get('model'));
-            newUser.save();
-            this.transitionToRoute('user', newUser);
+			this.get('model').save();			            
+            this.transitionToRoute('users');
         }
     }
 });
+
+
+
+
+
+
+
+
+
 
 App.ViewexpenseRoute = Ember.Route.extend({
   model: function() {
@@ -155,8 +160,8 @@ App.ExpenseRoute = Ember.Route.extend({
 });
 
 App.ExpenseController = Ember.ObjectController.extend({
-  isEditing: false,
-
+  isEditing: false,      
+   
   edit: function() {
     this.set('isEditing', true);
   },
@@ -167,15 +172,22 @@ App.ExpenseController = Ember.ObjectController.extend({
   }
 });
 
+
+
+
+
+
 App.ViewpersonRoute = Ember.Route.extend({
   model: function() {
-    return persons;
+    var users = this.get('store').findAll('person');	
+	return users;
   }
 });
 
 App.EachuserRoute = Ember.Route.extend({
   model: function(params) {
-    return persons.findBy('id', params.user_id);	
+    var store = this.get('store');
+		return store.find('person',params.person_id);
   }
 });
 
