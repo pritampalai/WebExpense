@@ -86,7 +86,7 @@
 	      <button {{action 'edit'}}>Edit</button>	    	  
     {{/if}}	
 	<h1>{{name}}</h1><h3>{{dname}}</h3><h3>{{desc}}</h3>
-    
+    <h3>Created <small class="muted">{{format-date creationDate}}</small></h3>
   </script>
 
   <script type="text/x-handlebars" id="eachuser/_edit">
@@ -100,10 +100,10 @@
 	 
         <div>Users:{{usersCount}}</div>
         <ul class="users-listing">
-            {{#each user in controller}}
+            {{#each controller}}
             <li>
-               {{#link-to "user" user}}
-                    {{user.name}}
+               {{#link-to 'user' this}}
+                    {{name}}
                {{/link-to}}
             </li>
             {{else}}
@@ -129,7 +129,7 @@
             <h4>{{name}}</h4>
             <span>{{dname}}</span>
             <p>{{desc}}</p>
-            <span>Created {{format-date user.creationDate}}</span>
+            <h4>Created <small class="muted">{{format-date creationDate}}</small></h4>
         </div>
         {{outlet}}        
     </script>
@@ -189,7 +189,8 @@
 		  			   </tr>
 		            {{/each}}
 		         </tbody>
-	  </table>	 
+	  </table>
+	  
 	  {{outlet}}        
   </script>
   
@@ -229,8 +230,7 @@
   <script src="http://cdnjs.cloudflare.com/ajax/libs/ember-data.js/1.0.0-beta.8/ember-data.min.js"></script>
   <script src="http://cdnjs.cloudflare.com/ajax/libs/showdown/0.3.1/showdown.min.js"></script>  
   <script src="http://cdnjs.cloudflare.com/ajax/libs/moment.js/2.1.0/moment.min.js"></script>
-  <script src="js/localstorage_adapter.js"></script>
-  <script src="js/createUsersInLocalStorage.js"></script>     
+  <script src="js/localstorage_adapter.js"></script>    
   <script src="js/app.js"></script>
      
 
