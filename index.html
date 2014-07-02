@@ -162,7 +162,7 @@
         <div class="span3">
 		  <ul>
 		    <li>{{#link-to 'viewexpense'}}View Expenses{{/link-to}}</li>
-			 <li>{{#link-to 'addexpense'}}Add Expense{{/link-to}}</li>			
+			<li>{{#link-to 'addexpense'}}Add Expense{{/link-to}}</li>			
 			<li>{{#link-to 'summary'}}Compute Payments >{{/link-to}}</li>			
 		  </ul>		          
         </div>
@@ -176,14 +176,13 @@
   <script type="text/x-handlebars" id="viewexpense">
      <table class='table'>
 	    	     <thead>
-	                <tr><th>#</th><th>Date</th><th>Description</th><th>Who paid?</th><th>Amount</th><th>For Whom</th></tr>
+	                <tr><th>Date</th><th>Description</th><th>Who paid?</th><th>Amount</th><th>For Whom</th></tr>
 	             </thead>
 		         <tbody>
 		            {{#each model}}		  
-		               <tr>
-		      		      <td>{{#link-to 'eachexpense' this}}{{id}}{{/link-to}}</td>
+		               <tr>		      		     
 			  			  <td>{{date}}</td>
-			  			  <td>{{desc}}</td>
+			  			  <td>{{#link-to 'eachexpense' this}}{{desc}}{{/link-to}}</td>
 						  <td>{{whopaid}}</td>
 			  			  <td>{{amount}}</td>
 						  <td>{{forwhom}}</td>
@@ -196,7 +195,7 @@
   </script>
   
   <script type="text/x-handlebars" id="viewexpense/index">
-    <p class="text-warning">Click on #(id) to edit</p>
+    <p class="text-warning">Click on (desc) to edit</p>
   </script>
   
   <script type="text/x-handlebars" id="eachexpense">
@@ -223,12 +222,12 @@
 	 <div>Expenses:{{expensesCount}}</div>
 	         <table class='table'>
 	    	     <thead>
-	                <tr><th>#</th><th>Description</th><th>Who paid?</th><th>Amount</th><th>For Whom</th></tr>
+	                <tr><th>Date</th><th>Description</th><th>Who paid?</th><th>Amount</th><th>For Whom</th></tr>
 	             </thead>
 		         <tbody>
 		            {{#each controller}}		  
-		               <tr>		      		
-					      <td></td>	  			  			  
+		               <tr>		
+					      <td>{{date}}</td>			       			  			  
 						  <td>{{#link-to 'expense' this}}{{desc}}{{/link-to}}</td>
 						  <td>{{whopaid}}</td>
 			  			  <td>{{amount}}</td>
@@ -251,9 +250,9 @@
             </div>
             {{/if}}
             <button {{action "edit"}}>Edit</button>
-            <button {{action "delete"}}>Delete</button>
-			            
-            <h4>{{name}}</h4>
+            <button {{action "delete"}}>Delete</button>			            
+            
+			<p>{{date}}</p>
             <span>{{desc}}</span>
             <p>{{whopaid}}</p>
 			<p>{{amount}}</p>
@@ -263,11 +262,11 @@
         {{outlet}}        
     </script>
   <script type="text/x-handlebars" id="expense/editexpense">
-        <div class="user-edit">            
-            <div>
-                <label>User Name</label>
-                {{input value=name}}
-            </div>
+        <div class="user-edit">           
+			<div>
+			    <label>Date</label>
+                {{input value=date}}
+			</div>
             <div>
                 <label>Description</label>
                 {{input value=desc}}
