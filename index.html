@@ -149,8 +149,7 @@
                 <label>Description</label>
                 {{textarea value=desc}}
             </div>
-            <div>
-                <br/>
+            <div>                
                 <button {{action "save"}}> ok </button>
             </div>
         </div>
@@ -210,11 +209,11 @@
   </script>
   
   <script type="text/x-handlebars" id="eachexpense/_edit">
-    <p>{{input type="text" value=date}}</p>
+    <p>{{input type="date" value=date}}</p>
     <p>{{input type="text" value=desc}}</p>
-	<p>{{input type="text" value=whopaid}}</p>
+	<p>{{input type="radio" value=whopaid}}</p>
     <p>{{input type="text" value=amount}}</p>
-	<p>{{input type="text" value=forwhom}}</p>	
+	<p>{{input type="checkbox" value=forwhom}}</p>	
   </script>
   
   <script type="text/x-handlebars" id="addexpense">
@@ -265,26 +264,27 @@
         <div class="user-edit">           
 			<div>
 			    <label>Date</label>
-                {{input value=date}}
+                {{input type="date" value=date}}
 			</div>
             <div>
                 <label>Description</label>
-                {{input value=desc}}
+                {{input type="text" value=desc}}
             </div>
             <div>
-                <label>Who Paid</label>
-                {{input value=whopaid}}
+                <label>Who Paid?{{#each 'person' in viewperson}}
+						   				{{view Ember.RadioButton name="users" selectionBinding="isSelected" value="{{person.name}}"}}
+						  				 {{person.name}}
+						  	    {{/each}}
+				</label>               
             </div>
 			<div>
                 <label>Amount</label>
-                {{input value=amount}}
+                {{input type="text" value=amount}}
             </div>
-			<div>
-                <label>For Whom</label>
-                {{input value=forwhom}}
+			<div>			
+                <label>For Whom ?{{input type="checkbox" name="users" checked=yes}}Sample1</label>			
             </div>
-            <div>
-                <br/>
+            <div>                
                 <button {{action "save"}}> ok </button>
             </div>
         </div>
