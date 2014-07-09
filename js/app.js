@@ -43,9 +43,62 @@ App.Person = DS.Model.extend( {
 App.Expenditure = DS.Model.extend( {   
     desc      : DS.attr('string'),
 	date      : DS.attr('date'),
-	whopaid   : DS.attr('string'),
+	whopaid   : DS.hasMany('person'),
 	amount    : DS.attr('string'),
-	forwhom   : DS.attr('string')
+	forwhom   : DS.hasMany('person')
+});
+
+Ember.RadioButton = Ember.View.extend({
+  attributeBindings: ["isDisabled:disabled", "type", "name", "value"],
+  classNames: ["ember-radio-button"],
+
+  value: null,
+
+  selectedValue: null,
+
+  isDisabled: false,
+
+  isChecked: false,
+
+  tagName: "input",
+  type: "radio",
+
+  didInsertElement: function() {
+    Ember.addObserver(this, 'isChecked', this, this.isCheckedDidChange);
+    this.isCheckedDidChange();
+  },
+
+  willInsertElement: function() {
+    Ember.removeObserver(this, 'isChecked', this, this.isCheckedDidChange);
+  },
+
+  selectedValueDidChange: Ember.observer(function() {
+    set(this, 'isChecked', get(this, 'value') === get(this, 'selectedValue'));
+  }, 'selectedValue'),
+
+  isCheckedDidChange: function() {
+    var isChecked = get(this, 'isChecked');
+
+    this.$().prop('checked', isChecked ? 'checked' : null);
+
+    if (isChecked) {
+      set(this, 'selectedValue', get(this, 'value'));
+    }
+  },
+
+  init: function() {
+    this._super();
+    this.selectedValueDidChange();
+  },
+
+  click: function() {
+    Ember.run.once(this, this._updateElementValue);
+  },
+
+  _updateElementValue: function() {
+    set(this, 'isChecked', this.$().prop('checked'));
+  }
+
 });
 
 // viewperson 
@@ -276,8 +329,7 @@ App.AddexpenseNewRoute = Ember.Route.extend({
         
 App.AddexpenseNewController = Ember.ObjectController.extend({
     actions: {
-        save: function () {    
-            this.get('model').set('date', new Date());
+        save: function () {       
 			this.get('model').save();			            
             this.transitionToRoute('addexpense');
         }
