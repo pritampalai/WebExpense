@@ -5,6 +5,7 @@
 <title>Ember Starter Kit</title>
   <link rel="stylesheet" href="css/normalize.css">
   <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="http://netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css" />
   <link href="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.no-icons.min.css" rel="stylesheet">
   <style>
         /* minimum styling possible */
@@ -85,8 +86,7 @@
     {{else}}
 	      <button {{action 'edit'}}>Edit</button>	    	  
     {{/if}}	
-	<h1>{{name}}</h1><h3>{{dname}}</h3><h3>{{desc}}</h3>
-    <h3>Created <small class="muted">{{format-date creationDate}}</small></h3>
+	
   </script>
 
   <script type="text/x-handlebars" id="eachuser/_edit">
@@ -124,12 +124,8 @@
             </div>
             {{/if}}
             <button {{action "edit"}}>Edit</button>
-            <button {{action "delete"}}>Delete</button>
-			            
-            <h4>{{name}}</h4>
-            <span>{{dname}}</span>
-            <p>{{desc}}</p>
-            <h4>Created <small class="muted">{{format-date creationDate}}</small></h4>
+            <button {{action "delete"}}>Delete</button>		            
+           
         </div>
         {{outlet}}        
     </script>
@@ -154,151 +150,256 @@
             </div>
         </div>
     </script>
+	
+	 <!--EXPENSES-->
 
-  <script type="text/x-handlebars" id="expenses">
+   <script type="text/x-handlebars" id="expenses">
     <div class="container-fluid">
       <div class="row-fluid">
         <div class="span3">
-		  <ul>
-		    <li>{{#link-to 'viewexpense'}}View Expenses{{/link-to}}</li>
-			<li>{{#link-to 'addexpense'}}Add Expense{{/link-to}}</li>			
+		  <ul>		    
+			<button {{action "addExpense"}}>Add Expense [+]</button>
+			<button {{action "deleteExpenses"}}>Delete Selected </button>			
 			<li>{{#link-to 'summary'}}Compute Payments >{{/link-to}}</li>			
 		  </ul>		          
         </div>
         <div class="span9">
-          {{outlet}}
+		  <table class="table">
+			<tr>
+				<th>all</th>
+				<th></th>
+				<th>Date</th>
+				<th>Description</th>
+				<th>Who paid?</th>
+				<th>Amount</th>
+				<th>For whom?</th>
+			</tr>
+			{{#each expense in controller}}
+			<tr>
+				<td>{{input type="checkbox" checked=isChecked}}</td>
+				<td class="edit"><button {{action "editExpense" expense}} class="btn btn-primary btn-sm">Edit</button></td>
+				<td> {{formatDate date 'DD-MM-YYYY'}} </td>
+				<td> {{description}} </td>
+				<td> {{payer.name}} </td>
+				<td> {{amount}} </td>
+				<td>
+				<ul class='payees'>
+				{{#each person in payees}}
+					<li>{{person.name}}</li>
+				{{/each}}
+				</ul>
+				</td>
+			</tr>
+			{{/each}}
+		</table>
+          {{outlet modal}}
         </div>
       </div>
     </div>
   </script>
   
-  <script type="text/x-handlebars" id="viewexpense">
-     <table class='table'>
-	    	     <thead>
-	                <tr><th>Date</th><th>Description</th><th>Who paid?</th><th>Amount</th><th>For Whom</th></tr>
-	             </thead>
-		         <tbody>
-		            {{#each model}}		  
-		               <tr>		      		     
-			  			  <td>{{date}}</td>
-			  			  <td>{{#link-to 'eachexpense' this}}{{desc}}{{/link-to}}</td>
-						  <td>{{whopaid}}</td>
-			  			  <td>{{amount}}</td>
-						  <td>{{forwhom}}</td>
-		  			   </tr>
-		            {{/each}}
-		         </tbody>
-	  </table>
-	  
-	  {{outlet}}        
+  <script type="text/x-handlebars" id="newExpense">   	
+	<div class="modal-header">
+	  	  <button type="button" class="close" {{action "close"}}>&times;</button>
+	  	  <h3>New Expense</h3>
+	</div>
+    <div>
+      <form {{action "save" expensesMaxId on="submit"}}>
+         <div class="modal-body">
+		 <table class="table modaltable">
+		 <tr>
+			<td><label for="date">Date </label></td>
+			<td>{{view App.DateField dateBinding="expenseDate" id="date"}}</td>
+		 </tr>
+		 <tr>
+			<td><label for="description">Description </label></td>
+			<td>{{input type="text" value=description id="description"}}</td>
+		 </tr>
+		 <tr>
+			<td><label>Who Paid? </label></td>
+			<td>
+			{{radio-component content=controllers.persons.content value=selectedPayer}}
+			</td>
+		</tr>
+		<tr>
+			<td><label for="amount">Amount </label></td>
+			<td>{{input type="text" value=amount id="amount"}}</td>
+		</tr>
+		<tr>
+			<td><label>For Whom? </label></td>
+			<td>
+			{{checkbox-component content=controllers.persons.content value=selectedPayees}}
+			{{controllers.persons.content.name}}
+			</td>
+		</tr>	
+	     </table>
+         </div>
+         <div class="modal-footer">
+		     <input type="button" class="btn" {{action "saveAndNew" personsMaxId}} value="Save and New"/>
+    		 <input type="submit" class="btn btn-primary" value="Save"/>
+			 <input type="button" class="btn" {{action "close"}} value="Cancel"/>
+		 </div>
+     </form>
+   </div>   
   </script>
   
-  <script type="text/x-handlebars" id="viewexpense/index">
-    <p class="text-warning">Click on (desc) to edit</p>
+  <script type="text/x-handlebars" id="components/radio-button">  
+     <ul>
+	 	 {{#each content}}
+		 <li>
+	          {{radio-btn value=id name=view.name selection=view.value}}
+	          <label>{{name}}</label>
+         </li>
+         {{/each}}
+    </ul>
+  </script>
+
+  <script type="text/x-handlebars" id="components/check-box">
+   <ul>
+  	  {{#each content}}
+	  <li>
+	  	  {{check-bx value=id name=view.name checkedVals=view.value}}
+		  <label>{{name}}</label>
+	  </li>
+	  {{/each}}
+   </ul>
   </script>
   
-  <script type="text/x-handlebars" id="eachexpense">
-    {{#if isEditing}}
-    	  {{partial 'eachexpense/edit'}}
-    	  <button {{action 'doneEditing'}}>Done</button>
-    {{else}}
-	      <button {{action 'edit'}}>Edit</button>	    	  
-    {{/if}}	
-	<h5>{{date}}</h5><h5>{{desc}}</h5><h5>{{whopaid}}</h5><h5>{{amount}}</h5><h5>{{forwhom}}</h5>    
-    
-  </script>
-  
-  <script type="text/x-handlebars" id="eachexpense/_edit">
-    <p>{{input type="date" value=date}}</p>
-    <p>{{input type="text" value=desc}}</p>
-	<p>{{input type="radio" value=whopaid}}</p>
-    <p>{{input type="text" value=amount}}</p>
-	<p>{{input type="checkbox" value=forwhom}}</p>	
-  </script>
-  
-  <script type="text/x-handlebars" id="addexpense">
-     {{#link-to "addexpense.new" class="create-btn"}} Add expense[+] {{/link-to}}
-	 <div>Expenses:{{expensesCount}}</div>
-	         <table class='table'>
-	    	     <thead>
-	                <tr><th>Date</th><th>Description</th><th>Who paid?</th><th>Amount</th><th>For Whom</th></tr>
-	             </thead>
-		         <tbody>
-		            {{#each controller}}		  
-		               <tr>		
-					      <td>{{date}}</td>			       			  			  
-						  <td>{{#link-to 'expense' this}}{{desc}}{{/link-to}}</td>
-						  <td>{{whopaid}}</td>
-			  			  <td>{{amount}}</td>
-						  <td>{{forwhom}}</td>
-		  			   </tr>
-		            {{/each}}
-		         </tbody>
-	          </table>
-        	       
-        {{outlet}}		     
-  </script> 
-  
-  <script type="text/x-handlebars" id="expense">
-        <div class="user-profile">
-            {{#if deleteMode}}
-            <div class="confirm-box">
-                <h5>Really?</h5>
-                <button {{action "confirmDelete"}}> yes </button>
-                <button {{action "cancelDelete"}}> no </button>
-            </div>
-            {{/if}}
-            <button {{action "edit"}}>Edit</button>
-            <button {{action "delete"}}>Delete</button>			            
-            
-			<p>{{date}}</p>
-            <span>{{desc}}</span>
-            <p>{{whopaid}}</p>
-			<p>{{amount}}</p>
-			<p>{{forwhom}}</p>            
-        </div>
-		
-        {{outlet}}        
-    </script>
-  <script type="text/x-handlebars" id="expense/editexpense">
-        <div class="user-edit">           
-			<div>
-			    <label>Date</label>
-                {{input type="date" value=date}}
+  <script type="text/x-handlebars" id="modal">      
+         <div class="modal-dialog">
+            <div class="modal-content">
+            {{yield}}
 			</div>
-            <div>
-                <label>Description</label>
-                {{input type="text" value=desc}}
-            </div>
-            <div>
-                <label>Who Paid?{{#each 'person' in viewperson}}
-						   				{{view Ember.RadioButton name="users" selectionBinding="isSelected" value="{{person.name}}"}}
-						  				 {{person.name}}
-						  	    {{/each}}
-				</label>               
-            </div>
-			<div>
-                <label>Amount</label>
-                {{input type="text" value=amount}}
-            </div>
-			<div>			
-                <label>For Whom ?{{input type="checkbox" name="users" checked=yes}}Sample1</label>			
-            </div>
-            <div>                
-                <button {{action "save"}}> ok </button>
-            </div>
-        </div>
-    </script>
-  
-  <script type="text/x-handlebars" id="summary">
-    <div class='about'>
-      Summary  - TO DO
-    </div>
+         </div>     
   </script>
   
-  <script src="js/libs/jquery-1.10.2.js"></script>
-  <script src="js/libs/handlebars-1.1.2.js"></script>
-  <script src="http://builds.emberjs.com/tags/v1.5.1/ember.js"></script>    
+  <script type="text/x-handlebars" id="editexpense">
+  		  <div class="modal-header">
+		  	   <button type="button" class="close" {{action "close"}}>&times;</button>
+			   <h3>Edit Expense</h3>
+	      </div>
+		  <div>
+		  	 <form {{action "save" on="submit"}}>
+			   <div class="modal-body">
+			   	<table class="table modaltable">
+					<tr>
+						<td><label for="date">Date </label></td>
+						<td>{{view App.DateField dateBinding="date" id="date"}}</td>
+					</tr>
+					<tr>
+						<td><label for="description">Description </label></td>
+						<td>{{input type="text" value=description id="description"}}</td>
+					</tr>
+					<tr>
+						<td><label>Who Paid? </label></td>
+						<td>{{radio-component content=controllers.persons.content value=selectedPayer}}</td>
+					</tr>
+					<tr>
+					    <td><label for="amount">Amount </label></td>
+						<td>{{input type="text" value=amount id="amount"}}</td>
+					</tr>
+            		<tr>
+					    <td><label>For Whom? </label></td>
+						<td>
+							{{checkbox-component content=controllers.persons.content value=selectedPayees}}
+							{{controllers.persons.content.name}}
+             			</td>
+				    </tr>	
+			   </table>
+	          </div>
+			  <div class="modal-footer">
+			     <input type="button" class="btn" {{action "close"}} value="Cancel"/>
+                 <input type="submit" class="btn btn-primary" value="Save"/>
+  		      </div>
+			</form>
+        </div>
+  </script>
+  
+  <script type="text/x-handlebars" id="confirmDelete">
+  		  <div class="modal-header">
+		     <button type="button" class="close" {{action "close"}}>&times;</button>
+			 <h3>Delete Persons</h3>
+	      </div>
+		  <div>
+		     <form {{action "confirmDelete" on="submit"}}>
+		     <div class="modal-body">
+		  	      Are you sure you want to delete the selected persons?
+			 </div>
+			 <div class="modal-footer">
+			     <input type="button" class="btn" {{action "close"}} value="Cancel"/>
+                 <input type="submit" class="btn btn-primary" value="Confirm Delete"/>
+			 </div>
+			</form>
+		  </div>
+  </script>
+  
+
+
+  <script type="text/x-handlebars" id="summary">
+    <div class="main">
+	<!-- <button {{action "exportToExcel"}} class="btn btn-primary btn-xs">Export to Excel</button>	<button {{action "printTable"}} class="btn btn-primary btn-xs">Print Table</button> -->
+	<br/><br/>
+	<table class="table table-hover table-bordered" id="summary">
+		<tr>
+			<th>Name</th>
+			<th>Total Spent</th>
+			<th>Owes</th>
+			<th>Is Owed</th>
+			<th>Balance</th>
+		</tr>
+		{{#each summaryItem in controller}}
+		<tr>
+			<td> {{name}} </td>
+			<td> {{spent}} </td>
+			<td> {{owes}} </td>
+			<td> {{owed}} </td>
+			<td {{bind-attr class="balanceColor"}}> {{balance}} </td>
+		</tr>
+		{{/each}}
+	</table>
+	<br/>
+	<button {{action "computePayments"}} class="btn btn-primary btn-xs">Compute Payments</button>
+	<br/><br/>
+	{{#if isComputing}}
+		It would take {{payments.length}} payments to even out all debts:
+		<br/>
+		<table id="payments">
+		{{#each payment in payments}}
+		<tr>
+			<td class="negative">{{payment.owesName}}</td>
+			<td>
+				<div class="arrow">
+				<span class="line"></span>
+				<span class="point"></span>
+				</div>
+			</td>
+			<td>{{payment.amount}}</td>
+			<td>
+				<div class="arrow">
+				<span class="line"></span>
+				<span class="point"></span>
+				</div>
+			</td>
+			<td class="positive">{{payment.owedName}}</td>
+		</tr>
+		{{else}}
+			<li> No payments to be done... </li>
+		{{/each}}
+	{{/if}}
+  </div>
+  </script>
+  
+  <!--<script src="http://code.jquery.com/jquery-2.0.3.min.js"></script>
+  <script src="http://netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
+  <script src="js/libs/handlebars-1.1.2.js"></script>  
+  <script src="http://builds.emberjs.com/tags/v1.5.1/ember.js"></script>   
+  <script src="http://cdnjs.cloudflare.com/ajax/libs/ember-data.js/1.0.0-beta.8/ember-data.min.js"></script>
+  <script src="http://cdnjs.cloudflare.com/ajax/libs/moment.js/2.5.1/moment.min.js"></script>-->
+  
+  <script src="http://code.jquery.com/jquery-2.0.3.min.js"></script>
+  <script src="http://netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
+  <script src="js/libs/handlebars-1.1.2.js"></script>  
+  <script src="http://builds.emberjs.com/tags/v1.5.1/ember.js"></script>   
   <script src="js/libs/ember-states.js"></script>  
   <script src="http://cdnjs.cloudflare.com/ajax/libs/ember-data.js/1.0.0-beta.8/ember-data.min.js"></script>
   <script src="http://cdnjs.cloudflare.com/ajax/libs/showdown/0.3.1/showdown.min.js"></script>  
